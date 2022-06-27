@@ -1,8 +1,7 @@
 import sys
-from typing import Dict
 
 from PySide2 import QtCore, QtWidgets, QtGui
-from datetime import datetime, date
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 WINDOW_WIDTH = 300
@@ -21,7 +20,7 @@ class AppWidget(QtWidgets.QWidget):
         self.onlyDouble = QtGui.QDoubleValidator(decimals=1, bottom=2, top=500)
         self.onlyInt = QtGui.QIntValidator(bottom=100, top=250)
         self.birth_date_label = QtWidgets.QLabel("Podaj datę urodzenia:")
-        self.birth_date_widget = QtWidgets.QDateEdit(calendarPopup=True)
+        self.birth_date_widget = QtWidgets.QDateEdit(calendarPopup=True) # noqa
         self.weight_label = QtWidgets.QLabel("Podaj obecną wagę w kg:")
         self.weight_widget = QtWidgets.QLineEdit("50")
         self.height_label = QtWidgets.QLabel("Podaj wzrost w cm:")
@@ -72,12 +71,12 @@ class AppWidget(QtWidgets.QWidget):
         try:
             height = int(height) / 100
         except ValueError:
-            return QtWidgets.QMessageBox.critical(None, "Wystąpił błąd", "Wzrost musi być liczbą")
+            return QtWidgets.QMessageBox.critical(self, "Wystąpił błąd", "Wzrost musi być liczbą")
 
         try:
             weight = float(weight)
         except ValueError:
-            return QtWidgets.QMessageBox.critical(None, "Wystąpił błąd", "Waga musi być liczbą")
+            return QtWidgets.QMessageBox.critical(self, "Wystąpił błąd", "Waga musi być liczbą")
 
         result = round((weight / height ** 2), 1)
         result_value = f'<font color="{self.get_description(bmi_result=result).get("color", "green")}">' \
@@ -121,7 +120,7 @@ class AppWidget(QtWidgets.QWidget):
             result["color"] = "red"
             result["description"] = "III stopień otyłości (otyłość skrajna)"
         else:
-            return QtWidgets.QMessageBox.critical(None, "Wystąpił błąd", "Podano nieprawidłową wagę lub wzrost")
+            return QtWidgets.QMessageBox.critical(self, "Wystąpił błąd", "Podano nieprawidłową wagę lub wzrost") # noqa
 
         return result
 
