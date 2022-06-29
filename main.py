@@ -8,8 +8,8 @@ from dateutil.relativedelta import relativedelta
 from Equations import Equation
 from Overrides.QPushButton import QPushButton
 
-WINDOW_WIDTH = 330
-WINDOW_HEIGHT = 600
+WINDOW_WIDTH = 405
+WINDOW_HEIGHT = 650
 WINDOW_TITLE = "Kalkulator dietetyczny"
 
 TEXT_INPUT_FIELD_WIDTH = 50
@@ -20,11 +20,11 @@ ICON_BUTTON_SIZE = 42
 ICON_BUTTON_ICON_SIZE = 40
 GRID_ROW_MINIMUM_HEIGHT = 45
 RESULTS_FONT_FAMILY = 'Helvetica'
-RESULTS_FONT_SIZE = 16
+RESULTS_FONT_SIZE = 12
 BMR_TOOLTIP_METHOD = "Liczony metodą Mifflin-St Jeor"
 tte_items = [
                 {"name": "1,2", "value": 1.2, "description": "osoba chora leżąca w łóżku"},
-                {"name": "1,25", "value": 1.25, "description": "pracownika biurowey, osoba o bardzo niskiej "
+                {"name": "1,25", "value": 1.25, "description": "pracownika biurowi, osoba o bardzo niskiej "
                                                                "aktywności fizycznej związanej tylko z obowiązkami "
                                                                "domowymi."},
                 {"name": "1,5", "value": 1.5, "description": "pracownik biurowy, który trenuje ok. 3 razy w tygodniu "
@@ -43,6 +43,9 @@ class AppWidget(QtWidgets.QWidget):
             "weight": None,
             "height": None,
         }
+
+
+
         self.onlyDouble = QtGui.QDoubleValidator(decimals=1, bottom=2, top=500)
         self.onlyInt = QtGui.QIntValidator(bottom=100, top=250)
         self.sex_button_group = QtWidgets.QButtonGroup()
@@ -61,13 +64,18 @@ class AppWidget(QtWidgets.QWidget):
         self.BMR_widget = QtWidgets.QLabel()
         self.BMI_label = QtWidgets.QLabel()
         self.BMI_widget = QtWidgets.QLabel()
-        self.TEE_label = QtWidgets.QLabel("Aktywność fizyczna:")
-        self.TEE_widget = QtWidgets.QComboBox()
-        self.TTE_description_table = QtWidgets.QTableWidget(len(tte_items), 2, self)
+        self.TEE_label_for_list = QtWidgets.QLabel("Aktywność fizyczna:")
+        self.TEE_list_widget = QtWidgets.QComboBox()
+        self.TTE_label = QtWidgets.QLabel()
+        self.TTE_widget = QtWidgets.QLabel()
+        self.TTE_table_description = QtWidgets.QLabel()
+        self.TTE_values_descriptions_table = QtWidgets.QTableWidget(len(tte_items), 2, self)
         self.description_widget = QtWidgets.QLabel()
         self.calculate = QtWidgets.QPushButton("Oblicz")
 
+        self.desktop_size = QtWidgets.QApplication.primaryScreen().size()
         self.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
+
         self.setLayout(self.initialize_layout())
 
     def initialize_layout(self) -> QtWidgets.QLayout:
@@ -100,8 +108,12 @@ class AppWidget(QtWidgets.QWidget):
         self.BMR_label.setToolTip(BMR_TOOLTIP_METHOD)
         self.BMR_widget.setFont(QtGui.QFont(RESULTS_FONT_FAMILY, RESULTS_FONT_SIZE))
         self.BMR_label.setFont(QtGui.QFont(RESULTS_FONT_FAMILY, RESULTS_FONT_SIZE))
-        self.add_tte_items(tte_items, self.TEE_widget)
-        self.generate_description_table(tte_items, self.TTE_description_table)
+        self.TTE_widget.setFont(QtGui.QFont(RESULTS_FONT_FAMILY, RESULTS_FONT_SIZE))
+        self.TTE_label.setFont(QtGui.QFont(RESULTS_FONT_FAMILY, RESULTS_FONT_SIZE))
+        self.TTE_table_description.setText("Opis wartości aktywności fizycznej")
+        self.TTE_table_description.setFont(QtGui.QFont(RESULTS_FONT_FAMILY, 8))
+        self.add_tte_items(tte_items, self.TEE_list_widget)
+        self.generate_description_table(tte_items, self.TTE_values_descriptions_table)
         self.weight_widget.setFixedWidth(TEXT_INPUT_FIELD_WIDTH)
         self.height_widget.setFixedWidth(TEXT_INPUT_FIELD_WIDTH)
         self.birth_date_widget.setFixedWidth(CALENDAR_INPUT_WIDTH)
@@ -116,16 +128,21 @@ class AppWidget(QtWidgets.QWidget):
         window_layout.addWidget(self.weight_widget, 2, 1)
         window_layout.addWidget(self.height_label, 3, 0)
         window_layout.addWidget(self.height_widget, 3, 1)
-        window_layout.addWidget(self.TEE_label, 4, 0)
-        window_layout.addWidget(self.TEE_widget, 4, 1)
+        window_layout.addWidget(self.TEE_label_for_list, 4, 0)
+        window_layout.addWidget(self.TEE_list_widget, 4, 1)
         window_layout.addWidget(self.calculate, 5, 1)
-        window_layout.addWidget(self.TTE_description_table, 6, 0, 1, 3)
-        window_layout.addWidget(self.BMI_label, 7, 0)
-        window_layout.addWidget(self.BMI_widget, 8, 0)
-        window_layout.addWidget(self.BMR_label, 7, 1)
-        window_layout.addWidget(self.BMR_widget, 8, 1)
-        window_layout.addWidget(self.description_widget, 9, 0, 1, 2)
+        window_layout.addWidget(self.TTE_table_description, 6, 0, 1, 8)
+        window_layout.addWidget(self.TTE_values_descriptions_table, 7, 0, 1, 8)
+        window_layout.addWidget(self.BMI_label, 8, 0)
+        window_layout.addWidget(self.BMI_widget, 9, 0)
+        window_layout.addWidget(self.BMR_label, 8, 1)
+        window_layout.addWidget(self.BMR_widget, 9, 1)
+        window_layout.addWidget(self.TTE_label, 8, 2)
+        window_layout.addWidget(self.TTE_widget, 9, 2)
+        window_layout.addWidget(self.description_widget, 10, 0, 1, 2)
         self.calculate.clicked.connect(lambda: self.calculate_results())
+
+
 
         return window_layout
 
@@ -136,7 +153,7 @@ class AppWidget(QtWidgets.QWidget):
                                height=self.height_widget.text(),
                                sex=self.sex_button_group.checkedButton().get_button_name(),
                                age=age,
-                               tte=self.TEE_widget.currentData())
+                               tte=self.TEE_list_widget.currentData())
 
 
         BMI_value = f'<font color="{calculation.get_BMI_description().get("color", "green")}">' \
@@ -147,7 +164,8 @@ class AppWidget(QtWidgets.QWidget):
         self.BMR_label.setText("BMR")
         self.BMR_widget.setText(f'{str(calculation.BMR())} kcal')
         self.description_widget.setText(calculation.get_BMI_description().get("description", "brak opisu"))
-        print(calculation.TTE())
+        self.TTE_label.setText("TTE")
+        self.TTE_widget.setText(f'{str(calculation.TTE())} kcal')
 
 
     def add_tte_items(self, items: list[dict], widget: QtWidgets.QComboBox):
@@ -168,7 +186,7 @@ class AppWidget(QtWidgets.QWidget):
         table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
         table.setHorizontalHeaderLabels(["Warość", "Opis"])
         table.setColumnWidth(0, 56)
-        table.setColumnWidth(1, 250)
+        table.setColumnWidth(1, 321)
         row_number = 0
         table_height = 0
 

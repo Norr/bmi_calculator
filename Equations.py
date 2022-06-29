@@ -1,3 +1,4 @@
+import math
 from PySide2 import QtWidgets
 
 CRITICAL_BMI_COLOR = "#cc3300"
@@ -88,4 +89,5 @@ class Equation:
 
     def TTE(self):
         """Method that returns TTE"""
-        return ceil(self.BMR() * self.tte)
+        return math.ceil(self.BMR() * self.tte)
+
