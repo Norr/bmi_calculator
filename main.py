@@ -15,7 +15,7 @@ BAD_BMI_COLOR = "#ff9966"
 WARING_BMI_COLOR = "#ffcc00"
 GOOD_BMI_COLOR = "#339900"
 TEXT_INPUT_FIELD_WIDTH = 50
-CALENDAR_INPUT_WIDTH = 80
+CALENDAR_INPUT_WIDTH = 85
 FEMALE_ICON = str(Path("icons/woman_female_avatar_icon_128.png").absolute())
 MALE_ICON = str(Path("icons/man_avatar_male_icon_128.png").absolute())
 ICON_BUTTON_SIZE = 42
@@ -89,6 +89,7 @@ class AppWidget(QtWidgets.QWidget):
         self.BMR_label.setFont(QtGui.QFont(RESULTS_FONT_FAMILY, RESULTS_FONT_SIZE))
         self.weight_widget.setFixedWidth(TEXT_INPUT_FIELD_WIDTH)
         self.height_widget.setFixedWidth(TEXT_INPUT_FIELD_WIDTH)
+        self.birth_date_widget.setFixedWidth(CALENDAR_INPUT_WIDTH)
 
         window_layout.addWidget(self.sex_label, 0, 0)
         window_layout.addWidget(self.sex_female_widget, 0, 1)
