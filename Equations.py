@@ -8,7 +8,8 @@ GOOD_BMI_COLOR = "#339900"
 
 class Equation:
 
-    def __init__(self, weight: str, height: str, age: int = None, sex: str = None, tte: float = None):
+    def __init__(self, weight: str, height: str, age: int = None, sex: str = None, tte: float = None,
+                 aim_index: int = None):
         """
         Initialization method.
         :param weight: `str`
@@ -22,6 +23,7 @@ class Equation:
         self.age = age
         self.sex = sex
         self.tte = tte
+        self.aim_index = aim_index
         try:
             self.height = int(self.height)
             self.weight = float(self.weight)
@@ -91,3 +93,10 @@ class Equation:
         """Method that returns TTE"""
         return math.ceil(self.BMR() * self.tte)
 
+    def aim(self):
+
+        if self.aim_index is not None:
+            match self.aim_index:
+                case 0: return [self.TTE() - 500, self.TTE() - 300]
+                case 1: return self.TTE()
+                case 2: return [int(self.TTE() * 1.1), int(self.TTE() * 1.25)]

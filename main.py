@@ -9,13 +9,14 @@ from Equations import Equation
 from Overrides.QPushButton import QPushButton
 
 WINDOW_WIDTH = 405
-WINDOW_HEIGHT = 650
+WINDOW_HEIGHT = 660
 WINDOW_TITLE = "Kalkulator dietetyczny"
 
 TEXT_INPUT_FIELD_WIDTH = 50
 CALENDAR_INPUT_WIDTH = 85
 FEMALE_ICON = str(Path("icons/woman_female_avatar_icon_128.png").absolute())
 MALE_ICON = str(Path("icons/man_avatar_male_icon_128.png").absolute())
+BURGER_ICON = str(Path("icons/burger_icon_128.png").absolute())
 ICON_BUTTON_SIZE = 42
 ICON_BUTTON_ICON_SIZE = 40
 GRID_ROW_MINIMUM_HEIGHT = 45
@@ -23,16 +24,17 @@ RESULTS_FONT_FAMILY = 'Helvetica'
 RESULTS_FONT_SIZE = 12
 BMR_TOOLTIP_METHOD = "Liczony metodą Mifflin-St Jeor"
 tte_items = [
-                {"name": "1,2", "value": 1.2, "description": "osoba chora leżąca w łóżku"},
-                {"name": "1,25", "value": 1.25, "description": "pracownika biurowi, osoba o bardzo niskiej "
-                                                               "aktywności fizycznej związanej tylko z obowiązkami "
-                                                               "domowymi."},
-                {"name": "1,5", "value": 1.5, "description": "pracownik biurowy, który trenuje ok. 3 razy w tygodniu "
-                                                             "przez co najmniej godzinę."},
-                {"name": "1,75", "value": 1.75, "description": "osoba prowadząca aktywny tryb życia."},
-                {"name": "2", "value": 2, "description": "sportowiec trenujący co najmniej 6 godzin tygodniowo lub"
-                                                         " osoba, która wykonuje bardzo ciężką pracę fizyczną."},
-            ]
+    {"name": "1,2", "value": 1.2, "description": "osoba chora leżąca w łóżku"},
+    {"name": "1,25", "value": 1.25, "description": "pracownika biurowi, osoba o bardzo niskiej "
+                                                   "aktywności fizycznej związanej tylko z obowiązkami "
+                                                   "domowymi."},
+    {"name": "1,5", "value": 1.5, "description": "pracownik biurowy, który trenuje ok. 3 razy w tygodniu "
+                                                 "przez co najmniej godzinę."},
+    {"name": "1,75", "value": 1.75, "description": "osoba prowadząca aktywny tryb życia."},
+    {"name": "2", "value": 2, "description": "sportowiec trenujący co najmniej 6 godzin tygodniowo lub"
+                                             " osoba, która wykonuje bardzo ciężką pracę fizyczną."},
+]
+aims = ["Chcę schudnąć", "Chcę zachować wagę", "Chcę przytyć"]
 
 
 class AppWidget(QtWidgets.QWidget):
@@ -43,9 +45,7 @@ class AppWidget(QtWidgets.QWidget):
             "weight": None,
             "height": None,
         }
-
-
-
+        self.setWindowIcon(QtGui.QIcon(BURGER_ICON))
         self.onlyDouble = QtGui.QDoubleValidator(decimals=1, bottom=2, top=500)
         self.onlyInt = QtGui.QIntValidator(bottom=100, top=250)
         self.sex_button_group = QtWidgets.QButtonGroup()
@@ -68,6 +68,9 @@ class AppWidget(QtWidgets.QWidget):
         self.TEE_list_widget = QtWidgets.QComboBox()
         self.TTE_label = QtWidgets.QLabel()
         self.TTE_widget = QtWidgets.QLabel()
+        self.aim_label = QtWidgets.QLabel()
+        self.aim_widget = QtWidgets.QComboBox()
+        self.aim_description = QtWidgets.QLabel()
         self.TTE_table_description = QtWidgets.QLabel()
         self.TTE_values_descriptions_table = QtWidgets.QTableWidget(len(tte_items), 2, self)
         self.description_widget = QtWidgets.QLabel()
@@ -112,6 +115,14 @@ class AppWidget(QtWidgets.QWidget):
         self.TTE_label.setFont(QtGui.QFont(RESULTS_FONT_FAMILY, RESULTS_FONT_SIZE))
         self.TTE_table_description.setText("Opis wartości aktywności fizycznej")
         self.TTE_table_description.setFont(QtGui.QFont(RESULTS_FONT_FAMILY, 8))
+        self.aim_label.setText("Co chcesz osiągnąć?")
+        self.aim_widget.addItems(aims)
+        self.description_widget.setFixedHeight(15)
+        aim_font = QtGui.QFont(RESULTS_FONT_FAMILY, 10)
+        aim_font.setBold(True)
+        self.aim_description.setFont(aim_font)
+        self.aim_description.setFixedHeight(35)
+        self.aim_description.setWordWrap(True)
         self.add_tte_items(tte_items, self.TEE_list_widget)
         self.generate_description_table(tte_items, self.TTE_values_descriptions_table)
         self.weight_widget.setFixedWidth(TEXT_INPUT_FIELD_WIDTH)
@@ -130,19 +141,20 @@ class AppWidget(QtWidgets.QWidget):
         window_layout.addWidget(self.height_widget, 3, 1)
         window_layout.addWidget(self.TEE_label_for_list, 4, 0)
         window_layout.addWidget(self.TEE_list_widget, 4, 1)
-        window_layout.addWidget(self.calculate, 5, 1)
-        window_layout.addWidget(self.TTE_table_description, 6, 0, 1, 8)
-        window_layout.addWidget(self.TTE_values_descriptions_table, 7, 0, 1, 8)
-        window_layout.addWidget(self.BMI_label, 8, 0)
-        window_layout.addWidget(self.BMI_widget, 9, 0)
-        window_layout.addWidget(self.BMR_label, 8, 1)
-        window_layout.addWidget(self.BMR_widget, 9, 1)
-        window_layout.addWidget(self.TTE_label, 8, 2)
-        window_layout.addWidget(self.TTE_widget, 9, 2)
-        window_layout.addWidget(self.description_widget, 10, 0, 1, 2)
+        window_layout.addWidget(self.aim_label, 5, 0)
+        window_layout.addWidget(self.aim_widget, 5, 1)
+        window_layout.addWidget(self.calculate, 6, 1)
+        window_layout.addWidget(self.TTE_table_description, 7, 0, 1, 8)
+        window_layout.addWidget(self.TTE_values_descriptions_table, 8, 0, 1, 8)
+        window_layout.addWidget(self.BMI_label, 9, 0)
+        window_layout.addWidget(self.BMI_widget, 10, 0)
+        window_layout.addWidget(self.BMR_label, 9, 1)
+        window_layout.addWidget(self.BMR_widget, 10, 1)
+        window_layout.addWidget(self.TTE_label, 9, 2)
+        window_layout.addWidget(self.TTE_widget, 10, 2)
+        window_layout.addWidget(self.description_widget, 11, 0, 1, 3)
+        window_layout.addWidget(self.aim_description, 12, 0, 1, 3)
         self.calculate.clicked.connect(lambda: self.calculate_results())
-
-
 
         return window_layout
 
@@ -153,8 +165,8 @@ class AppWidget(QtWidgets.QWidget):
                                height=self.height_widget.text(),
                                sex=self.sex_button_group.checkedButton().get_button_name(),
                                age=age,
-                               tte=self.TEE_list_widget.currentData())
-
+                               tte=self.TEE_list_widget.currentData(),
+                               aim_index=self.aim_widget.currentIndex())
 
         BMI_value = f'<font color="{calculation.get_BMI_description().get("color", "green")}">' \
                     f'{str(calculation.BMI())}</font>'
@@ -166,7 +178,21 @@ class AppWidget(QtWidgets.QWidget):
         self.description_widget.setText(calculation.get_BMI_description().get("description", "brak opisu"))
         self.TTE_label.setText("TTE")
         self.TTE_widget.setText(f'{str(calculation.TTE())} kcal')
+        aim_text = ""
+        if calculation.sex == "f":
+            person = "powinnaś"
+        else:
+            person = "powinieneś"
 
+        if calculation.aim_index == 0:
+            aim_text = f"Aby schudnąć {person} spożywać od {calculation.aim()[0]} - {calculation.aim()[1]}" \
+                       f" kcal dziennie."
+        if calculation.aim_index == 1:
+            aim_text = f"Aby zachować wagę {person} spożywać ok. {calculation.aim()} kcal dziennie."
+        if calculation.aim_index == 2:
+            aim_text = f"Aby przytyć {person} spożywać od {calculation.aim()[0]} - {calculation.aim()[1]}" \
+                       f" kcal dziennie."
+        self.aim_description.setText(aim_text)
 
     def add_tte_items(self, items: list[dict], widget: QtWidgets.QComboBox):
         if type(items) not in [list, tuple]:
